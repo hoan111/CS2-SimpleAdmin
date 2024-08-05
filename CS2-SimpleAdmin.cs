@@ -90,7 +90,7 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
         if (damageAPI != null)
         {
             damageAPI.Hook_OnTakeDamage(CallOriginalOnTakeDamageMethod);
-            Logger.LogInformation("damageAPI is null");
+            Logger.LogInformation("Successfully get DamageManagementAPI instance");
         }
     }
 
