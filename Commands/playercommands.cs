@@ -35,10 +35,11 @@ namespace CS2_SimpleAdmin
 
 
 			callerName ??= caller == null ? "Console" : caller.PlayerName;
+			EnableOriginalOnTakeDamageMethod = true;
+            player?.CommitSuicide(false, true);
+			EnableOriginalOnTakeDamageMethod = false;
 
-			player?.CommitSuicide(false, true);
-
-			if (command != null)
+            if (command != null)
 			{
 				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
 				Helper.LogCommand(caller, command);
@@ -481,9 +482,11 @@ namespace CS2_SimpleAdmin
 			if (!caller.CanTarget(player)) return;
 
 			var callerName = caller == null ? "Console" : caller.PlayerName;
-			player!.Pawn.Value!.Slap(damage);
+            EnableOriginalOnTakeDamageMethod = true;
+            player!.Pawn.Value!.Slap(damage);
+            EnableOriginalOnTakeDamageMethod = false;
 
-			if (command != null)
+            if (command != null)
 			{
 				Helper.LogCommand(caller, command);
 				if (_localizer != null)

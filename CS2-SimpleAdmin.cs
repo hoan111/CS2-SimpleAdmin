@@ -1,5 +1,7 @@
-﻿using CounterStrikeSharp.API.Core;
+﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
+using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Commands.Targeting;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
@@ -8,6 +10,7 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using System.Collections.Concurrent;
+using static IDamageManagementAPI;
 
 namespace CS2_SimpleAdmin;
 
@@ -43,7 +46,13 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
 	public override string ModuleAuthor => "daffyy & Dliix66";
 	public override string ModuleVersion => "1.5.1a";
 
-	public CS2_SimpleAdminConfig Config { get; set; } = new();
+	public static bool EnableOriginalOnTakeDamageMethod = false;
+
+
+    public CS2_SimpleAdminConfig Config { get; set; } = new();
+
+    public static PluginCapability<IDamageManagementAPI> DamageManagementAPI { get; } = new("damagemanagement:api");
+	public IDamageManagementAPI damageAPI { get; set; }
 
 	public override void Load(bool hotReload)
 	{
@@ -58,9 +67,14 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
 		}
 
 		_cBasePlayerControllerSetPawnFunc = new MemoryFunctionVoid<CBasePlayerController, CCSPlayerPawn, bool, bool>(GameData.GetSignature("CBasePlayerController_SetPawn"));
+    }
+
+    public bool CallOriginalOnTakeDamageMethod()
+	{
+		return EnableOriginalOnTakeDamageMethod;
 	}
 
-	public override void Unload(bool hotReload)
+    public override void Unload(bool hotReload)
 	{
 		if (hotReload) return;
 
@@ -72,7 +86,13 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
 	public override void OnAllPluginsLoaded(bool hotReload)
 	{
 		AddTimer(3.0f, () => ReloadAdmins(null));
-	}
+        damageAPI = DamageManagementAPI.Get();
+        if (damageAPI != null)
+        {
+            damageAPI.Hook_OnTakeDamage(CallOriginalOnTakeDamageMethod);
+            Logger.LogInformation("damageAPI is null");
+        }
+    }
 
 	public void OnConfigParsed(CS2_SimpleAdminConfig config)
 	{
