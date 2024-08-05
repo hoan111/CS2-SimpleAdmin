@@ -81,6 +81,8 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
 		RemoveListener(OnMapStart);
 		RemoveCommandListener("say", OnCommandSay, HookMode.Post);
 		RemoveCommandListener("say_team", OnCommandTeamSay, HookMode.Post);
+
+		damageAPI.Unhook_OnTakeDamage(CallOriginalOnTakeDamageMethod);
 	}
 
 	public override void OnAllPluginsLoaded(bool hotReload)
