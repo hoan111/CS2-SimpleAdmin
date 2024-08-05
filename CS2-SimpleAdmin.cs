@@ -43,8 +43,8 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
 	private static MemoryFunctionVoid<CBasePlayerController, CCSPlayerPawn, bool, bool>? _cBasePlayerControllerSetPawnFunc;
 	public override string ModuleName => "CS2-SimpleAdmin" + (Helper.IsDebugBuild ? " (DEBUG)" : " (RELEASE)");
 	public override string ModuleDescription => "Simple admin plugin for Counter-Strike 2 :)";
-	public override string ModuleAuthor => "daffyy & Dliix66";
-	public override string ModuleVersion => "1.5.1a";
+	public override string ModuleAuthor => "daffyy & Dliix66. Edited by HoanNK";
+	public override string ModuleVersion => "1.5.1.1a";
 
 	public static bool EnableOriginalOnTakeDamageMethod = false;
 
