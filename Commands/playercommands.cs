@@ -27,39 +27,32 @@ namespace CS2_SimpleAdmin
 			});
 		}
 
-		public void Slay(CCSPlayerController? caller, CCSPlayerController? player, string? callerName = null, CommandInfo? command = null)
-		{
-			if (player == null || !player.IsValid || player.Connected != PlayerConnectedState.PlayerConnected)
-				return;
-			if (!caller.CanTarget(player)) return;
+        public void Slay(CCSPlayerController? caller, CCSPlayerController? player, string? callerName = null, CommandInfo? command = null)
+        {
+            if (player == null || !player.IsValid || player.Connected != PlayerConnectedState.PlayerConnected)
+                return;
+            if (!caller.CanTarget(player)) return;
 
-			callerName ??= caller == null ? "Console" : caller.PlayerName;
+            callerName ??= caller == null ? "Console" : caller.PlayerName;
+
 			EnableOriginalOnTakeDamageMethod = true;
             player?.CommitSuicide(false, true);
 			EnableOriginalOnTakeDamageMethod = false;
 
-            if (command != null)
-			{
-				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-				Helper.LogCommand(caller, command);
-			}
+            Helper.LogCommand(caller, $"css_slay {player?.PlayerName}");
 
-			player?.CommitSuicide(false, true);
+            if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
+            foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
+            {
+                if (_localizer != null)
+                    controller.SendLocalizedMessage(_localizer,
+                                        "sa_admin_slay_message",
+                                        callerName,
+                                        player?.PlayerName ?? string.Empty);
+            }
+        }
 
-			Helper.LogCommand(caller, $"css_slay {player?.PlayerName}");
-
-			if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
-			foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
-			{
-				if (_localizer != null)
-					controller.SendLocalizedMessage(_localizer,
-										"sa_admin_slay_message",
-										callerName,
-										player?.PlayerName ?? string.Empty);
-			}
-		}
-
-		[ConsoleCommand("css_give")]
+        [ConsoleCommand("css_give")]
 		[RequiresPermissions("@css/cheats")]
 		[CommandHelper(minArgs: 2, usage: "<#userid or name> <weapon>", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
 		public void OnGiveCommand(CCSPlayerController? caller, CommandInfo command)
@@ -447,41 +440,33 @@ namespace CS2_SimpleAdmin
 			});
 		}
 
-		public void Slap(CCSPlayerController? caller, CCSPlayerController? player, int damage, CommandInfo? command = null)
-		{
-			if (!caller.CanTarget(player)) return;
+        public void Slap(CCSPlayerController? caller, CCSPlayerController? player, int damage, CommandInfo? command = null)
+        {
+            if (!caller.CanTarget(player)) return;
 
-			var callerName = caller == null ? "Console" : caller.PlayerName;
-            EnableOriginalOnTakeDamageMethod = true;
+            var callerName = caller == null ? "Console" : caller.PlayerName;
+			EnableOriginalOnTakeDamageMethod = true;
             player!.Pawn.Value!.Slap(damage);
-            EnableOriginalOnTakeDamageMethod = false;
+			EnableOriginalOnTakeDamageMethod = false;
 
-            if (command != null)
-			{
-				Helper.LogCommand(caller, command);
-				if (_localizer != null)
-					Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-			}
-			player!.Pawn.Value!.Slap(damage);
+            Helper.LogCommand(caller, $"css_slap {player?.PlayerName} {damage}");
 
-			Helper.LogCommand(caller, $"css_slap {player?.PlayerName} {damage}");
+            if (_localizer == null)
+                return;
 
-			if (_localizer == null)
-				return;
+            if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
 
-			if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
+            foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
+            {
+                if (_localizer != null)
+                    controller.SendLocalizedMessage(_localizer,
+                                        "sa_admin_slap_message",
+                                        callerName,
+                                        player?.PlayerName ?? string.Empty);
+            }
+        }
 
-			foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
-			{
-				if (_localizer != null)
-					controller.SendLocalizedMessage(_localizer,
-										"sa_admin_slap_message",
-										callerName,
-										player?.PlayerName ?? string.Empty);
-			}
-		}
-
-		[ConsoleCommand("css_team")]
+        [ConsoleCommand("css_team")]
 		[RequiresPermissions("@css/kick")]
 		[CommandHelper(minArgs: 2, usage: "<#userid or name> [<ct/tt/spec>] [-k]", whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
 		public void OnTeamCommand(CCSPlayerController? caller, CommandInfo command)

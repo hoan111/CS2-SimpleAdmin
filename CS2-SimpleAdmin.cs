@@ -10,7 +10,6 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 using System.Collections.Concurrent;
-using static IDamageManagementAPI;
 
 namespace CS2_SimpleAdmin;
 
@@ -44,7 +43,7 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
 	public override string ModuleName => "CS2-SimpleAdmin" + (Helper.IsDebugBuild ? " (DEBUG)" : " (RELEASE)");
 	public override string ModuleDescription => "Simple admin plugin for Counter-Strike 2 :)";
 	public override string ModuleAuthor => "daffyy & Dliix66. Edited by HoanNK";
-	public override string ModuleVersion => "1.5.1.1a";
+	public override string ModuleVersion => "1.5.2.1a";
 
 	public static bool EnableOriginalOnTakeDamageMethod = false;
 
