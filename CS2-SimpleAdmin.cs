@@ -14,7 +14,7 @@ using static IDamageManagementAPI;
 
 namespace CS2_SimpleAdmin;
 
-[MinimumApiVersion(246)]
+[MinimumApiVersion(253)]
 public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdminConfig>
 {
 	public static CS2_SimpleAdmin Instance { get; private set; } = new();
@@ -30,10 +30,10 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
 	private static bool _tagsDetected;
 	public static bool VoteInProgress = false;
 	public static int? ServerId = null;
-	public static bool UnlockedCommands = CoreConfig.UnlockConCommands;
+	private static readonly bool UnlockedCommands = CoreConfig.UnlockConCommands;
 
 	public static DiscordWebhookClient? DiscordWebhookClientLog;
-	public static DiscordWebhookClient? DiscordWebhookClientPenalty;
+	// public static DiscordWebhookClient? DiscordWebhookClientPenalty;
 
 	private string _dbConnectionString = string.Empty;
 	private static Database.Database? _database;
@@ -63,6 +63,7 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
 		if (hotReload)
 		{
 			_serverLoaded = false;
+			OnGameServerSteamAPIActivated();
 			OnMapStart(string.Empty);
 		}
 
@@ -142,8 +143,6 @@ public partial class CS2_SimpleAdmin : BasePlugin, IPluginConfig<CS2_SimpleAdmin
 
 		if (!string.IsNullOrEmpty(Config.Discord.DiscordLogWebhook))
 			DiscordWebhookClientLog = new DiscordWebhookClient(Config.Discord.DiscordLogWebhook);
-		if (!string.IsNullOrEmpty(Config.Discord.DiscordPenaltyWebhook))
-			DiscordWebhookClientPenalty = new DiscordWebhookClient(Config.Discord.DiscordPenaltyWebhook);
 
 		PluginInfo.ShowAd(ModuleVersion);
 		if (Config.EnableUpdateCheck)

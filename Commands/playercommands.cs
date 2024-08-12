@@ -33,7 +33,6 @@ namespace CS2_SimpleAdmin
 				return;
 			if (!caller.CanTarget(player)) return;
 
-
 			callerName ??= caller == null ? "Console" : caller.PlayerName;
 			EnableOriginalOnTakeDamageMethod = true;
             player?.CommitSuicide(false, true);
@@ -44,6 +43,10 @@ namespace CS2_SimpleAdmin
 				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
 				Helper.LogCommand(caller, command);
 			}
+
+			player?.CommitSuicide(false, true);
+
+			Helper.LogCommand(caller, $"css_slay {player?.PlayerName}");
 
 			if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
 			foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
@@ -115,11 +118,7 @@ namespace CS2_SimpleAdmin
 		{
 			if (!caller.CanTarget(player)) return;
 
-			if (command != null)
-			{
-				Helper.LogCommand(caller, command);
-				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-			}
+			Helper.LogCommand(caller, $"css_give {player.PlayerName} {weaponName}");
 
 			player.GiveNamedItem(weaponName);
 			SubGiveWeapon(caller, player, weaponName, callerName);
@@ -174,11 +173,7 @@ namespace CS2_SimpleAdmin
 
 			player.RemoveWeapons();
 
-			if (command != null)
-			{
-				Helper.LogCommand(caller, command);
-				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-			}
+			Helper.LogCommand(caller, $"css_strip {player.PlayerName}");
 
 			if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
 			foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
@@ -223,11 +218,7 @@ namespace CS2_SimpleAdmin
 
 			player.SetHp(health);
 
-			if (command != null)
-			{
-				Helper.LogCommand(caller, command);
-				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-			}
+			Helper.LogCommand(caller, $"css_hp {player.PlayerName} {health}");
 
 			if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
 			foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
@@ -273,11 +264,7 @@ namespace CS2_SimpleAdmin
 
 			player.SetSpeed((float)speed);
 
-			if (command != null)
-			{
-				Helper.LogCommand(caller, command);
-				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-			}
+			Helper.LogCommand(caller, $"css_speed {player?.PlayerName} {speed}");
 
 			if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
 			foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
@@ -300,9 +287,7 @@ namespace CS2_SimpleAdmin
 
 			var targets = GetTarget(command);
 			if (targets == null) return;
-
-			Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-
+			
 			var playersToTarget = targets.Players.Where(player => player.IsValid && player is { PawnIsAlive: true, IsHLTV: false }).ToList();
 
 			playersToTarget.ForEach(player =>
@@ -325,11 +310,7 @@ namespace CS2_SimpleAdmin
 
 			player.SetGravity((float)gravity);
 
-			if (command != null)
-			{
-				Helper.LogCommand(caller, command);
-				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-			}
+			Helper.LogCommand(caller, $"css_gravity {player?.PlayerName} {gravity}");
 
 			if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
 			foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
@@ -375,11 +356,7 @@ namespace CS2_SimpleAdmin
 
 			player.SetMoney(money);
 
-			if (command != null)
-			{
-				Helper.LogCommand(caller, command);
-				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-			}
+			Helper.LogCommand(caller, $"css_money {player?.PlayerName} {money}");
 
 			if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
 			foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
@@ -422,17 +399,10 @@ namespace CS2_SimpleAdmin
 			callerName ??= caller == null ? "Console" : caller.PlayerName;
 
 			if (player == null) return;
-			if (command != null)
-			{
-				Helper.LogCommand(caller, command);
-				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-			}
+			
+			Helper.LogCommand(caller, $"css_god {player.PlayerName}");
 
-			if (!GodPlayers.Contains(player.Slot))
-			{
-				GodPlayers.Add(player.Slot);
-			}
-			else
+			if (!GodPlayers.Add(player.Slot))
 			{
 				GodPlayers.Remove(player.Slot);
 			}
@@ -492,6 +462,9 @@ namespace CS2_SimpleAdmin
 				if (_localizer != null)
 					Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
 			}
+			player!.Pawn.Value!.Slap(damage);
+
+			Helper.LogCommand(caller, $"css_slap {player?.PlayerName} {damage}");
 
 			if (_localizer == null)
 				return;
@@ -602,9 +575,7 @@ namespace CS2_SimpleAdmin
 				}
 			}
 
-			if (command == null) return;
-			Helper.LogCommand(caller, command);
-			Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
+			Helper.LogCommand(caller, $"css_team {player?.PlayerName} {teamName}");
 		}
 
 		[ConsoleCommand("css_rename", "Rename a player.")]
@@ -623,7 +594,6 @@ namespace CS2_SimpleAdmin
 			var playersToTarget = targets.Players.Where(player => player is { IsValid: true, IsHLTV: false }).ToList();
 
 			Helper.LogCommand(caller, command);
-			Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
 
 			playersToTarget.ForEach(player =>
 			{
@@ -661,7 +631,6 @@ namespace CS2_SimpleAdmin
 			var playersToTarget = targets.Players.Where(player => player is { IsValid: true, IsHLTV: false }).ToList();
 
 			Helper.LogCommand(caller, command);
-			Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
 
 			playersToTarget.ForEach(player =>
 			{
@@ -731,11 +700,7 @@ namespace CS2_SimpleAdmin
 			VirtualFunction.CreateVoid<CCSPlayerController>(player.Handle,
 															GameData.GetOffset("CCSPlayerController_Respawn"))(player);
 
-			if (command != null)
-			{
-				Helper.LogCommand(caller, command);
-				Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
-			}
+			Helper.LogCommand(caller, $"css_respawn {player?.PlayerName}");
 
 			if (caller != null && SilentPlayers.Contains(caller.Slot)) return;
 			foreach (var controller in Helper.GetValidPlayers().Where(controller => controller is { IsValid: true, IsBot: false }))
@@ -765,7 +730,6 @@ namespace CS2_SimpleAdmin
 			var playersToTarget = targets.Players.Where(player => player is { IsValid: true, IsHLTV: false }).ToList();
 
 			Helper.LogCommand(caller, command);
-			Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
 
 			playersToTarget.ForEach(player =>
 			{
@@ -809,7 +773,6 @@ namespace CS2_SimpleAdmin
 			var playersToTarget = targets.Players.Where(player => player is { IsValid: true, IsHLTV: false }).ToList();
 
 			Helper.LogCommand(caller, command);
-			Helper.SendDiscordLogMessage(caller, command, DiscordWebhookClientLog, _localizer);
 
 			playersToTarget.ForEach(player =>
 			{
